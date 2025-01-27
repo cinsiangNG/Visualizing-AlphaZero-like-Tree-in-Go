@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Dashboard Layout</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="index.js?4544445" defer></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <script src="orangeBox.js" defer></script>
+    <script src="blueBox.js" defer></script>
+    <script src="purpleBox.js?2aa21" defer></script>
+    <script src="greenBox.js" defer></script>
+    <script src="goBoard.js?waa" defer></script>
+    <script src="readTree.js" defer></script>
+    <script src="bluegoBoard.js?1a15115123" defer></script>
+    <script src="DrawHeatmap.js" defer></script>
+    <script src="bluestatus.js?11615645481515" defer></script>
+    <script src="drawheatmapbar.js" defer></script>
+    <script src="globalTimer.js?1213" defer></script>
+    <script src="tree_diagram.js?221" defer></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 3fr 2fr 1fr;
+            grid-template-rows: 4fr 1fr;
+            gap: 10px;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .orange-box {
+            grid-column: 1;
+            grid-row: 1;
+            border: 3px solid orange;
+            height: 100%;
+            width: 100%;
+        }
+
+        .blue-box {
+            grid-column: 2;
+            grid-row: 1;
+            border: 3px solid blue;
+            height: 100%;
+            width: 100%;
+        }
+
+        .purple-box {
+            width: 30%;
+            grid-column: 3;
+            grid-row: 1;
+            border: 3px solid purple;
+            height: 100%;
+        }
+
+        .green-box {
+            grid-column: 1 / span 3;
+            grid-row: 2;
+            border: 3px solid green;
+            height: 270px;
+            overflow-x: scroll;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .slider-item {
+            display: inline-block;
+            width: 100px;
+            height: 100%;
+            margin: 0 20px;
+            border: 2px solid black;
+            vertical-align: middle;
+        }
+
+        .arrow {
+            display: inline-block;
+            font-size: 2rem;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+
+        .link {
+            stroke: black;
+            stroke-width: 0.05px;
+            fill: none;
+        }
+
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto auto;
+            }
+
+            .orange-box, .blue-box, .purple-box, .green-box {
+                grid-column: 1;
+                grid-row: auto;
+            }
+        }
+        
+        
+        
+        
+        .purple-box {
+            display: flex;
+            flex-direction: column; /* 垂直排列 */
+            align-items: center; /* 水平居中 */
+            justify-content: space-between; /* 垂直均勻分布 */
+            width: 400px; /* 設置固定寬度 */
+            margin: 0 auto; /* 居中對齊 */
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            color: #fff;
+        }
+        
+        #winrateChart {
+            width: 100%; /* 繪圖區域占滿父容器 */
+            height: 170px; /* 固定高度 */
+            background-color: #000; /* 背景設為黑色 */
+            margin-bottom: 20px; /* 與按鈕區分隔 */
+            border: 1px solid #ccc; /* 可選：邊框 */
+            position: relative;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            margin-top: 10px;
+        }
+        
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            background-color: purple;
+            color: white;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        .control-btn:hover {
+            background-color: #8a2be2;
+            transform: scale(1.1);
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        .project-info {
+            text-align: center;
+            margin: 10px 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .project-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px 0;
+            color: #000;
+        }
+        
+        .project-authors {
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .project-authors .author {
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="orange-box" id="orangeBox">
+            <!-- Orange Box Content -->
+            <div id="tree_diagram"></div>
+        </div>
+        <div class="blue-box" id="blueBox">
+            <!-- Blue Box Content -->
+            <div class="go-chart" id="gochart" style="float:left;height:90%"></div>
+            <div class="chart-info" id="chartinfo" style="float:right;height:90%"></div>
+        </div>
+        <div class="purple-box" id="purpleBox">
+            <!-- Purple Box Content -->
+            <!-- 上半部：折線圖 -->
+            <div id="winrateChart"></div>
+
+             <!-- 中間部：專案名稱與作者 -->
+            <div id="projectInfo" class="project-info">
+                <h3 class="project-title">Visualizing AlphaZero like Tree Search in Go</h3>
+                <p class="project-authors">
+                    Authors: <br>
+                    <span class="author">陳弘翔 313551169 </span><br>
+                    <span class="author">郭建廷 313551072 </span><br>
+                    <span class="author">黃俊翔 312612305</span>
+                </p>
+            </div>
+            
+            <!-- 下半部：按鈕 -->
+            <div id="controlButtons" class="button-container">
+                <button id="prevMove" class="control-btn">
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                <button id="prevStep" class="control-btn">
+                    <i class="fas fa-angle-left"></i>
+                </button>
+                <button id="pause" class="control-btn">
+                    <i class="fas fa-pause"></i>
+                </button>
+                <button id="resume" class="control-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="nextStep" class="control-btn">
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                <button id="nextMove" class="control-btn">
+                    <i class="fas fa-angle-double-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="green-box" id="greenBox">
+            <!-- Green Box Content -->
+            <script>
+                var tmp;
+                </script>
+            <div id="sliderContent"></div>
+            <script type="module">
+                document.addEventListener('DOMContentLoaded', async function () {
+                    const boardSize = 9;
+                    const sliderContent = d3.select('#sliderContent');
+                    
+                    function generateBoardsFromActions(actions) {
+                        const boardSize = 9;
+                        let board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0)); // Initialize an empty board
+                        const boards = []; // List to store board states after each action
+                    
+                        actions.forEach((action, index) => {
+                            applyAction(board, action); // Apply the action to the current board
+                            boards.push(JSON.parse(JSON.stringify(board))); // Save a deep copy of the board state
+                        });
+                    
+                        return boards;
+                    }
+                    
+                    function drawBoardsWithClickEvent(boards, actions) {
+                        const sliderContent = d3.select("#sliderContent");
+                        sliderContent.selectAll("*").remove(); // Clear previous content
+                    
+                        boards.forEach((boardData, index) => {
+                            const sliderItem = sliderContent
+                                .append("div")
+                                .attr("class", "slider-item")
+                                .on("click", () => {
+                                    
+                                    setMoveAndStep(index,200);
+                                    console.log(`Board clicked: Move ${index}, Action: ${actions[index]}`);
+                                    // Add custom click logic here
+                                });
+                    
+                            drawGoBoard(sliderItem, boardData); // Draw the Go board for the current move
+                    
+                            // Add arrows between boards
+                            if (index < boards.length - 1) {
+                                sliderContent
+                                    .append("div")
+                                    .attr("class", "slider-arrow")
+                                    .style("display", "inline-block")
+                                    .style("vertical-align", "middle")
+                                    .html("&#8594;"); // Right arrow symbol
+                            }
+                        });
+                    }
+                    
+                    // Provided actions list
+                    const actions = [
+                        "B[E5]","W[E7]","B[G6]","W[G7]","B[C6]","W[F6]","B[F5]","W[G5]","B[H6]",
+                        "W[G4]","B[H7]","W[G8]","B[C7]","W[H8]","B[F3]","W[G3]","B[G2]","W[F4]",
+                        "B[E4]","W[F2]","B[E3]","W[H2]","B[E6]","W[F7]","B[E2]","W[G1]","B[D8]",
+                        "W[E8]","B[E1]","W[D7]","B[C8]","W[D6]","B[D5]","W[E9]","B[F1]","W[G2]",
+                        "B[J8]","W[H5]","B[D9]","W[J6]","B[B2]","W[J7]","B[B4]","W[C5]","B[C4]",
+                        "W[G6]","B[F9]","W[G9]","B[B6]","W[D3]","B[A8]","W[F8]","B[J1]","W[H3]",
+                        "B[B8]","W[J5]","B[J9]","W[H9]","B[B3]","W[B7]","B[C3]","W[H1]","B[C2]",
+                        "W[J3]","B[A3]","W[J2]","B[A6]","W[H4]","B[A2]","W[B1]","B[A7]","W[F9]",
+                        "B[C9]","W[J9]","B[D4]","W[B5]","B[H6]","W[B9]","B[A9]","W[PASS]","B[A5]",
+                        "W[C5]","B[B9]","W[PASS]","B[C1]","W[PASS]","B[D2]","W[PASS]","B[A1]","W[H7]",
+                        "B[B5]","W[PASS]","B[D1]","W[J4]","B[B1]","W[PASS]","B[PASS]"
+                    ];
+                    
+                    // Generate boards based on actions
+                    const boards = generateBoardsFromActions(actions);
+                    
+                    // Draw all boards and set up click events
+                    drawBoardsWithClickEvent(boards, actions);
+                    
+
+                });
+                </script>
+                
+        </div>
+    </div>
+</body>
+</html>
